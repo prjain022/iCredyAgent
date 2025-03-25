@@ -2,6 +2,9 @@
 
 # Function to generate iCredy ASCII Art
 generate_icredy_ascii_art() {
+  if command -v python > /dev/null 2>&1; then
+    python -c 'import pyfiglet; print(pyfiglet.figlet_format("iCredy", font="slant"))'
+  fi  
   echo "--------------------------------------------"
   echo "        iCredy Management Script"
   echo "--------------------------------------------"

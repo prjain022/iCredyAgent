@@ -6,7 +6,7 @@ services:
       - ICREDY_ACAPY_HTTP_PORT=${ICREDY_ACAPY_HTTP_PORT}
     ports:
       - 4052:4040
-    command: http icredy-agent:${ICREDY_ACAPY_HTTP_PORT} --domain=katydid-massive-mildly.ngrok-free.app --log stdout
+    command: http icredy-agent:${ICREDY_ACAPY_HTTP_PORT} --log stdout
 
   icredy-acapy-image-builder:
     pull_policy: missing
