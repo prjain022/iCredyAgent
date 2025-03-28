@@ -56,8 +56,9 @@ async def on_startup(profile: Profile, event: Event):
     )
     # and we need to tell the server to load the additional routes
     # first call to this property "builds" the underlying property...
-    srv.additional_routes_pattern
+    for route in srv.app.router.routes:
+        LOGGER.info(f"Route Path: {route.path}, Methods: {route.methods}")
     # our pattern should be known to the server now...
     # second call to the property should return all the patterns it will use
-    LOGGER.info(f"srv.additional_routes_pattern = {srv.additional_routes_pattern}")
+    #LOGGER.info(f"srv.additional_routes_pattern = {srv.app.router}")
     LOGGER.info("< on_startup")

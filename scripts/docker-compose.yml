@@ -33,7 +33,7 @@ services:
       - NGROK_NAME=ngrok-icredy-agent
       - ICREDY_ACAPY_HTTP_PORT=${ICREDY_ACAPY_HTTP_PORT}
       - ICREDY_ACAPY_ADMIN_PORT=${ICREDY_ACAPY_ADMIN_PORT}
-      - ICREDY_ACAPY_WALLET_NAME=$ICREDY_ACAPY_WALLET_NAME}
+      - ICREDY_ACAPY_WALLET_NAME=${ICREDY_ACAPY_WALLET_NAME}
       - ICREDY_ACAPY_WALLET_ENCRYPTION_KEY=${ICREDY_ACAPY_WALLET_ENCRYPTION_KEY}
       - ICREDY_ACAPY_WALLET_SCHEME=${ICREDY_ACAPY_WALLET_SCHEME}
       - POSTGRESQL_HOST=${POSTGRESQL_HOST}
@@ -110,24 +110,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
-  tenant-proxy:
-    pull_policy: missing
-    build:
-      context: ../plugins
-      dockerfile: ./docker/Dockerfile.tenant-proxy
-    image: icredy:tenant-proxy
-    depends_on:
-      icredy-agent:
-        condition: service_started
-    restart: unless-stopped
-    environment:
-      - ACAPY_ADMIN_URL=${ICREDY_ACAPY_ADMIN_URL}
-      - ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_API_KEY}
-    ports:
-      - ${TENANT_PROXY_PORT}:8080
-    extra_hosts:
-      - host.docker.internal:host-gateway
-
+  
   endorser-agent:
     image: ghcr.io/openwallet-foundation/acapy-agent:py3.12-1.2.4
     depends_on:
@@ -154,6 +137,7 @@ services:
         --wallet-storage-creds '{\"account\":\"${POSTGRESQL_USER}\",\"password\":\"${POSTGRESQL_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_USER}\",\"admin_password\":\"${POSTGRESQL_PASSWORD}\"}' \
         --wallet-name endorser-wallet  \
         --seed '${ACAPY_ENDORSER_SEED}' \
+        --accept-taa on_file 1.3 \
         --admin '0.0.0.0' ${ACAPY_ENDORSER_ADMIN_PORT} \
         --label '${ENDORSER_AGENT_NAME}' \
         ${ENDORSER_ACAPY_ADMIN_CONFIG} \
@@ -166,43 +150,6 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
-  endorser-agent-1:
-    image: ghcr.io/openwallet-foundation/acapy-agent:py3.12-1.2.4
-    depends_on:
-      endorser-db:
-        condition: service_healthy
-    ports:
-      - ${ACAPY_ENDORSER_1_ADMIN_PORT}:${ACAPY_ENDORSER_1_ADMIN_PORT}
-      - ${ACAPY_ENDORSER_1_HTTP_PORT}:${ACAPY_ENDORSER_1_HTTP_PORT}
-    entrypoint: /bin/bash
-    command: [
-        "-c",
-        "sleep 5;
-        aca-py start \
-        --auto-provision
-        --arg-file endorser-acapy-args.yml \
-        --inbound-transport http '0.0.0.0' ${ACAPY_ENDORSER_1_HTTP_PORT} \
-        --genesis-url '${ACAPY_GENESIS_URL_1}' \
-        --endpoint ${ACAPY_ENDORSER_1_ENDPOINT} \
-        --wallet-name '${ENDORSER_1_ACAPY_WALLET_DATABASE}' \
-        --wallet-key '${ENDORSER_ACAPY_WALLET_ENCRYPTION_KEY}' \
-        --wallet-type '${ENDORSER_ACAPY_WALLET_TYPE}' \
-        --wallet-storage-type '${ENDORSER_ACAPY_WALLET_STORAGE_TYPE}' \
-        --wallet-storage-config '{\"url\":\"${ENDORSER_POSTGRESQL_HOST}:5432\",\"max_connections\":5}' \
-        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_USER}\",\"password\":\"${POSTGRESQL_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_USER}\",\"admin_password\":\"${POSTGRESQL_PASSWORD}\"}' \
-        --wallet-name endorser-wallet-1  \
-        --seed '${ACAPY_ENDORSER_SEED_1}' \
-        --admin '0.0.0.0' ${ACAPY_ENDORSER_1_ADMIN_PORT} \
-        --label '${ENDORSER_AGENT_NAME}' \
-        ${ENDORSER_ACAPY_ADMIN_CONFIG} \
-        ",
-      ]
-    environment:
-      - RUST_LOG=error
-    volumes:
-      - "./endorser-acapy-args.yml:/home/aries/endorser-acapy-args.yml"
-    extra_hosts:
-      - host.docker.internal:host-gateway
 
   endorser-db:
     image: "postgres:15"
@@ -231,4 +178,3 @@ services:
 volumes:
   icredy-wallet:
   endorser-wallet:
-  endorser-wallet-1:

@@ -60,7 +60,7 @@ The default configuration will stand up the following environment:
 - innkeeper / change-me
 
 ### External dependencies
-- BCovrin Test ledger... see `ACAPY_GENESIS_URL` environment variable ([http://test.bcovrin.vonx.io/genesis](http://test.bcovrin.vonx.io/genesis)).
+- BCovrin Test ledger... see `ACAPY_GENESIS_URL` environment variable ([https://raw.githubusercontent.com/Indicio-tech/indicio-network/main/genesis_files/pool_transactions_testnet_genesis](https://raw.githubusercontent.com/Indicio-tech/indicio-network/main/genesis_files/pool_transactions_testnet_genesis)).
 - previously registered Endorser DID... see `ACAPY_ENDORSER_PUBLIC_DID` environment variable.
 
 ### Log streaming
